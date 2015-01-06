@@ -1,0 +1,66 @@
+the split operation
+
+make new branch from where to perform renaming operation,
+add
+commit
+
+make new branch to perform split operation from
+in terminal:
+
+for i in $(find . -iname "*.txt"); do
+    git mv "$i" "$(echo $i | rev | cut -d '.' -f 2- | rev).asciidoc";
+done
+
+make directory for receiving repo, ../docs-repo
+
+git subtree split --prefix=docs -b split_branch
+
+git push ../docs-repo split_branch:master
+
+cd ../docs-repo
+git remote add machinekit-docs https://github.com/luminize/machinekit-docs.git
+git push -u machinekit-docs master
+
+cd ../machinekit
+
+```
+Bass-MacBook-Pro-3:machinekit basdebruijn$ git branch -vv
+  1_docs-splitting-action e5ab215 docs: rename .txt to .asciidoc
+  2_split_branch          a4a8e55 docs: rename .txt to .asciidoc
+  docs-devel              e5ab215 docs: rename .txt to .asciidoc
+* master                  2455f28 [machinekit/master] Merge pull request #393 from luminize/fix-readme-ref
+Bass-MacBook-Pro-3:machinekit basdebruijn$ git remote -v
+MK-docs	https://github.com/luminize/machinekit-docs.git (fetch)
+MK-docs	https://github.com/luminize/machinekit-docs.git (push)
+luminize	https://github.com/luminize/machinekit.git (fetch)
+luminize	https://github.com/luminize/machinekit.git (push)
+machinekit	https://github.com/machinekit/machinekit.git (fetch)
+machinekit	https://github.com/machinekit/machinekit.git (push)
+Bass-MacBook-Pro-3:machinekit basdebruijn$ git checkout -b MK-docs_branch MK-docs/master
+Branch MK-docs_branch set up to track remote branch master from MK-docs.
+Switched to a new branch 'MK-docs_branch'
+```
+
+git rm -r docs
+
+git read-tree --prefix=docs/ -u MK-docs_branch
+
+Bass-MacBook-Pro-3:machinekit basdebruijn$ git branch -vv
+  1_docs-splitting-action e5ab215 docs: rename .txt to .asciidoc
+  2_split_branch          a4a8e55 docs: rename .txt to .asciidoc
+  MK-docs_branch          a4a8e55 [MK-docs/master] docs: rename .txt to .asciidoc
+* docs-devel              3e3f542 docs: remove /docs for use with subtree
+  master                  2455f28 [machinekit/master] Merge pull request #393 from luminize/fix-readme-ref
+
+git subtree push --prefix=docs MK-docs development
+-n 1 / 17378 (1)
+...
+...
+-n 17378/   17378 (17377)
+Counting objects: 130502, done.
+Delta compression using up to 8 threads.
+Compressing objects: 100% (29939/29939), done.
+Writing objects: 100% (130491/130491), 67.15 MiB | 284.00 KiB/s, done.
+Total 130491 (delta 99238), reused 130343 (delta 99163)
+To https://github.com/luminize/machinekit-docs.git
+ * [new branch]      1152c8e785e0751189978df743d8f7258c374ff5 -> development
